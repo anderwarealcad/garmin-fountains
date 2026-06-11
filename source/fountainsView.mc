@@ -53,15 +53,15 @@ class fountainsView extends WatchUi.DataField {
             err = e.toString();
             System.println(err);
         }
+        var _conf = conf as Array;
+        name = _conf[2];
+        device = _conf[3];
         try{
             screen = get_screen_size(device);
         }catch(e){
             err = e.toString();
             System.println(err);
         }
-        var _conf = conf as Array;
-        name = _conf[2];
-        device = _conf[3];
         var _screen = screen as Array;
         screenX = _screen[0];
         screenY = _screen[1];
@@ -397,13 +397,34 @@ class fountainsView extends WatchUi.DataField {
         } else if (device.equals("edgeexplore2")) {
             return [240, 400];
 
-        } else if (device.equals("edge530") || device.equals("edge540") || device.equals("edge830") || device.equals("edge840")) {
+        } else if (device.equals("edge530")) {
             return [246, 322];
 
-        } else if (device.equals("edge1030") || device.equals("edge1030plus") || device.equals("edge1030bontrager") || device.equals("edge1040")) {
+        } else if (device.equals("edge540")) {
+            return [246, 322];
+
+        } else if (device.equals("edge830")) {
+            return [246, 322];
+
+        } else if (device.equals("edge840")) {
+            return [246, 322];
+
+        } else if (device.equals("edge1030")) {
             return [282, 470];
 
-        } else if (device.equals("edge550") || device.equals("edge850")) {
+        } else if (device.equals("edge1030plus")) {
+            return [282, 470];
+
+        } else if (device.equals("edge1030bontrager")) {
+            return [282, 470];
+
+        } else if (device.equals("edge1040")) {
+            return [282, 470];
+
+        } else if (device.equals("edge550")) {
+            return [420, 600];
+
+        } else if (device.equals("edge850")) {
             return [420, 600];
 
         } else if (device == "edge1050") {
