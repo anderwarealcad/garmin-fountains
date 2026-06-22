@@ -8,7 +8,7 @@ import Toybox.Math;
 
 class fountainsView extends WatchUi.DataField {
 
-    var version = "1.0.2";
+    var version = "1.0.3";
 
     hidden var mValue as Numeric;
     var lat;
@@ -30,7 +30,9 @@ class fountainsView extends WatchUi.DataField {
     var screen = [] as Array;
     var screenX as Integer;
     var screenY as Integer;
+    var screenShape as String = "";
     var err as String = "";
+    var font;
 
     function initialize() {
         DataField.initialize();
@@ -56,16 +58,11 @@ class fountainsView extends WatchUi.DataField {
         var _conf = conf as Array;
         name = _conf[2];
         device = _conf[3];
-        try{
-            screen = get_screen_size(device);
-        }catch(e){
-            err = e.toString();
-            System.println(err);
-        }
-        var _screen = screen as Array;
-        screenX = _screen[0];
-        screenY = _screen[1];
-        //System.println("scr > "+ device + " " + screenX + " " + screenY);
+        screenX = _conf[4];
+        screenY = _conf[5];
+        screenShape = _conf[6];
+
+        System.println("scr > "+ device + " " + screenX + " " + screenY + " " + screenShape);
     }
 
     // Set your layout here. Anytime the size of obscurity of
@@ -154,6 +151,7 @@ class fountainsView extends WatchUi.DataField {
     function onUpdate(dc as Dc) as Void {
         // Set the background color
         var text;
+    
         // Call parent's onUpdate(dc) to redraw the layout
         View.onUpdate(dc);
 
@@ -164,23 +162,81 @@ class fountainsView extends WatchUi.DataField {
         }else{
             text = "Fuente de agua a\n " + dis.format("%.2f") + " km";
         }
+
+
+
         
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(screenX/2,screenY/7,Graphics.FONT_MEDIUM,text,Graphics.TEXT_JUSTIFY_CENTER);
+        if (screenShape.equals("circle")) {
+            //System.println("font xtiny");
 
-        drawBearingArrow(dc, bea, screenX, screenY);
+            font = Graphics.FONT_XTINY;
 
-        text = lat.format("%.2f") + "," + lon.format("%.2f");
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(0,screenY-20,Graphics.FONT_SMALL,text,Graphics.TEXT_JUSTIFY_LEFT);
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(screenX/2,screenY/7,font,text,Graphics.TEXT_JUSTIFY_CENTER);
 
-        text = err;
-        dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(0,screenY-40,Graphics.FONT_SMALL,text,Graphics.TEXT_JUSTIFY_LEFT);
+            drawBearingArrow(dc, bea, screenX, screenY);
 
-        text = name + " " + version;
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(screenX-10,screenY-20,Graphics.FONT_SMALL,text,Graphics.TEXT_JUSTIFY_RIGHT);
+            text = lat.format("%.2f") + "," + lon.format("%.2f");
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(screenX/2,screenY-50,font,text,Graphics.TEXT_JUSTIFY_CENTER);
+
+            text = name + " " + version;
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(screenX/2,screenY-80,font,text,Graphics.TEXT_JUSTIFY_CENTER);
+
+            text = err;
+            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(screenX/2,screenY-110,font,text,Graphics.TEXT_JUSTIFY_CENTER);
+
+        }else if(screenShape.equals("rectangle")) {
+            //System.println("font small");
+
+            font = Graphics.FONT_SMALL;
+
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(screenX/2,screenY/7,font,text,Graphics.TEXT_JUSTIFY_CENTER);
+
+            drawBearingArrow(dc, bea, screenX, screenY);
+
+            text = lat.format("%.2f") + "," + lon.format("%.2f");
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(0,screenY-20,font,text,Graphics.TEXT_JUSTIFY_LEFT);
+
+            text = err;
+            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(0,screenY-40,font,text,Graphics.TEXT_JUSTIFY_LEFT);
+
+            text = name + " " + version;
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(screenX-10,screenY-20,font,text,Graphics.TEXT_JUSTIFY_RIGHT);
+
+        }else{
+            //System.println("font default");
+            
+            font = Graphics.FONT_XTINY;
+
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(screenX/2,screenY/7,font,text,Graphics.TEXT_JUSTIFY_CENTER);
+
+            drawBearingArrow(dc, bea, screenX, screenY);
+
+            text = lat.format("%.2f") + "," + lon.format("%.2f");
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(0,screenY-20,font,text,Graphics.TEXT_JUSTIFY_LEFT);
+
+            text = err;
+            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(0,screenY-40,font,text,Graphics.TEXT_JUSTIFY_LEFT);
+
+            text = name + " " + version;
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(screenX-10,screenY-20,font,text,Graphics.TEXT_JUSTIFY_RIGHT);
+        }
+
+
+
+
+
     }
 
     //function getNearestFountain(currentLat, currentLon, fountains as Array<Dictionary<Symbol, Float>>) {
@@ -384,56 +440,6 @@ class fountainsView extends WatchUi.DataField {
         ];
 
         dc.fillPolygon(points);
-    }
-
-    function get_screen_size(device) {
-
-        if (device.equals("edge130plus")) {
-            return [200, 303];
-
-        } else if (device.equals("edgemtb")) {
-            return [240, 320];
-
-        } else if (device.equals("edgeexplore2")) {
-            return [240, 400];
-
-        } else if (device.equals("edge530")) {
-            return [246, 322];
-
-        } else if (device.equals("edge540")) {
-            return [246, 322];
-
-        } else if (device.equals("edge830")) {
-            return [246, 322];
-
-        } else if (device.equals("edge840")) {
-            return [246, 322];
-
-        } else if (device.equals("edge1030")) {
-            return [282, 470];
-
-        } else if (device.equals("edge1030plus")) {
-            return [282, 470];
-
-        } else if (device.equals("edge1030bontrager")) {
-            return [282, 470];
-
-        } else if (device.equals("edge1040")) {
-            return [282, 470];
-
-        } else if (device.equals("edge550")) {
-            return [420, 600];
-
-        } else if (device.equals("edge850")) {
-            return [420, 600];
-
-        } else if (device == "edge1050") {
-            return [480, 800];
-
-        } else {
-            // Default to a common size
-            return [266, 366];
-        }
     }
 
 }

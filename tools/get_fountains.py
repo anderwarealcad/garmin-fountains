@@ -25,8 +25,31 @@ except ImportError:
     sys.exit(1)
 
 # ============================================================
-# DISPOSITIVO VÃLIDO
+# FUNCIONES
 # ============================================================
+def get_screen_size(device):
+
+    sizes = {
+        "edge130plus": [200, 303, "rectangle"],
+        "edgemtb": [240, 320, "rectangle"],
+        "edgeexplore2": [240, 400, "rectangle"],
+        "edge530": [246, 322, "rectangle"],
+        "edge540": [246, 322, "rectangle"],
+        "edge830": [246, 322, "rectangle"],
+        "edge840": [246, 322, "rectangle"],
+        "edge1030": [282, 470, "rectangle"],
+        "edge1030plus": [282, 470, "rectangle"],
+        "edge1030bontrager": [282, 470, "rectangle"],
+        "edge1040": [282, 470, "rectangle"],
+        "edge550": [420, 600, "rectangle"],
+        "edge850": [420, 600, "rectangle"],
+        "edge1050": [480, 800, "rectangle"],
+        "vivoactive5": [390, 390, "circle"],
+    }
+    return sizes.get(
+        device,
+        [266, 366]
+    )
 def check_device(device):
 
     valid_devices = [
@@ -43,7 +66,8 @@ def check_device(device):
         "edge840",
         "edge850",
         "edgeexplore2",
-        "edgemtb"
+        "edgemtb",
+        "vivoactive5",
     ]
 
     return device.lower() in valid_devices
@@ -77,7 +101,7 @@ if(check_device(DEVICE) == False):
     print("Dispositivo no valido. Dispositivos validos:")
     print("  edge1030, edge1030bontrager, edge1030plus, edge1040, edge1050,")
     print("  edge130plus, edge530, edge540, edge550, edge830, edge840,")
-    print("  edge850, edgeexplore2, edgemtb")
+    print("  edge850, edgeexplore2, edgemtb, vivoactive5")
     sys.exit(1)
 
 
@@ -492,6 +516,8 @@ loader_file = os.path.join(
     "ConfLoader.mc"
 )
 
+SCREENX, SCREENY, SCREEN_SHAPE= get_screen_size(DEVICE)
+
 with open(
     loader_file,
     "w",
@@ -517,6 +543,15 @@ with open(
     )
     f.write(
         f"            \"{DEVICE}\",\n"
+    )
+    f.write(
+        f"            {SCREENX},\n"
+    )
+    f.write(
+        f"            {SCREENY},\n"
+    )
+    f.write(
+        f"            \"{SCREEN_SHAPE}\",\n"
     )
     f.write(
         "        ];\n"
