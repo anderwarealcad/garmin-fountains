@@ -569,7 +569,7 @@ print(f"Confloader.mc ok")
 # GENERAR GEOJSON
 # ============================================================
 
-mc_files = glob.glob("../source/tiles/*.mc")
+mc_files = glob.glob("../source/tiles/f_*.mc")
 
 if not mc_files:
     print("No se encontraron ficheros .mc")
@@ -587,15 +587,27 @@ for mc_file in mc_files:
 
         content = f.read()
 
-    matches = re.findall(
-        r"\[\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\]",
-        content
+    m = re.search(
+        r"return\s*\[(.*?)\];",
+        content,
+        flags=re.DOTALL
     )
 
-    for lat, lon in matches:
+    if not m:
+        print(f"No se encontraron coordenadas en {mc_file}")
+        continue
 
-        lat = float(lat)
-        lon = float(lon)
+    nums = re.findall(r"-?\d+(?:\.\d+)?", m.group(1))
+
+    if len(nums) % 2 != 0:
+        print(f"ERROR en {mc_file}")
+        print(m.group(1))
+        continue
+
+    for i in range(0, len(nums), 2):
+
+        lat = float(nums[i])
+        lon = float(nums[i + 1])
 
         features.append(
             {
@@ -611,11 +623,10 @@ for mc_file in mc_files:
             }
         )
 
-    geojson = {
-        "type": "FeatureCollection",
-        "features": features
-    }
-
+geojson = {
+    "type": "FeatureCollection",
+    "features": features
+}
 
 with open(
     "fountains.geojson",
@@ -630,7 +641,7 @@ with open(
         indent=2
     )
 
-print(f"fountains.geojson ok")
+print(f"fountains.geojson ok ({len(features)} puntos)")
 
 # ============================================================
 # COMPILAR
