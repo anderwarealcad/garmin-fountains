@@ -5,10 +5,11 @@ import Toybox.WatchUi;
 import Toybox.System;
 import Toybox.Position;
 import Toybox.Math;
+import Toybox.Attention;
 
 class fountainsView extends WatchUi.DataField {
 
-    var version = "1.0.3";
+    var version = "1.0.5";
 
     hidden var mValue as Numeric;
     var lat;
@@ -33,6 +34,8 @@ class fountainsView extends WatchUi.DataField {
     var screenShape as String = "";
     var err as String = "";
     var font;
+    var f_notify;
+    var _alert;
 
     function initialize() {
         DataField.initialize();
@@ -61,6 +64,8 @@ class fountainsView extends WatchUi.DataField {
         screenX = _conf[4];
         screenY = _conf[5];
         screenShape = _conf[6];
+
+        f_notify=0;
 
         System.println("scr > "+ device + " " + screenX + " " + screenY + " " + screenShape);
     }
@@ -138,8 +143,31 @@ class fountainsView extends WatchUi.DataField {
             //System.println("fou > " + f_lat.format("%.4f") + " " + f_lon.format("%.4f"));
 
             //obtener la direccion de la fuente
-            bea=getBearing(lat, lon, f_lat, f_lon);
-            //System.println("dir > " + bearingToText(bea));
+            var bearing=getBearing(lat, lon, f_lat, f_lon);
+            var heading = info.currentHeading * 180.0 / Math.PI;
+            bea = bearing - heading;
+            while (bea < 0) {
+                bea += 360;
+            }
+            while (bea >= 360) {
+                bea -= 360;
+            }
+            //comprobar distancia <100m enviar notificacion
+            System.println("alert > " + dis + " " + f_notify);
+            
+            if(dis<0.1 && f_notify==0){
+                System.println("Alerta ON");
+                f_notify=1;
+                try{
+                    Attention.playTone(Attention.TONE_ALARM);
+                }catch(e){
+                    System.println("Alerta ERROR");
+                }
+            }
+
+            if(dis>0.1 && f_notify==1){
+                f_notify=0;
+            }
 
             System.println(" ");
 
@@ -163,9 +191,6 @@ class fountainsView extends WatchUi.DataField {
             text = "Fuente de agua a\n " + dis.format("%.2f") + " km";
         }
 
-
-
-        
         if (screenShape.equals("circle")) {
             //System.println("font xtiny");
 
@@ -232,10 +257,6 @@ class fountainsView extends WatchUi.DataField {
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(screenX-10,screenY-20,font,text,Graphics.TEXT_JUSTIFY_RIGHT);
         }
-
-
-
-
 
     }
 
